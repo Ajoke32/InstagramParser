@@ -1,9 +1,11 @@
-﻿using ProfileParser.Abstraction.Interfaces;
-using ProfileParser.Data;
+﻿using ProfileParser.Data;
+using ProfileParser.Interfaces;
+using ProfileParser.Interfaces.Parsers;
+
 
 namespace ProfileParser.Parsers;
 
-public class InstagramParserTemplate
+public class InstagramParserTemplate:IParserTemplate
 {
     private readonly InstagramParser _parser;
     
@@ -11,7 +13,7 @@ public class InstagramParserTemplate
     {
         _parser = parser;
     }
-    public Task Parse()
+    public Task ParseAsync()
     {
         return Task.Run(() =>
         {
@@ -20,17 +22,12 @@ public class InstagramParserTemplate
                 _parser.HideNotificationModal();
 
                 _parser.MoveToAccount();
-
-                //_driver.Navigate().GoToUrl("https://www.instagram.com/obezbashena15/");
-
+                
                 _parser.InitFollowersBLock();
 
-                while (_parser.MoveNext())
-                {
-                    Console.Clear();
-                }
+                _parser.ParseFollowers();
 
-                _parser.ParseUsers();
+                _parser.ParseAccounts();
             }
             catch (Exception e)
             {
@@ -39,18 +36,15 @@ public class InstagramParserTemplate
         });
     }
 
-    public Task Save(ISaveDataStrategy dataSaver)
+    public async Task SaveAsync(ISaveDataStrategy dataSaver)
     {
-        return Task.Run(() =>
-        {
-            dataSaver.Save(_parser.Users);
-        });
+        await dataSaver.SaveAsync(_parser.Users);
     }
 
 
-    public async Task ExecuteTemplate()
+    public async Task ExecuteTemplateAsync()
     {
-        await Parse();
-        await Save(new JsonSaveData());
+        await ParseAsync();
+        await SaveAsync(new JsonSaveData());
     }
 }

@@ -1,6 +1,6 @@
-﻿namespace ProfileParser.Options;
+﻿namespace ProfileParser.Abstraction.Options;
 
-public abstract class ProfileParsingOptions
+public abstract class ParsingOptions
 {
     public string FollowersSection { get; set; } = string.Empty; // or friends section
 

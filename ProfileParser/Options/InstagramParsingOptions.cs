@@ -1,8 +1,9 @@
-﻿using ProfileParser.Entities;
+﻿using ProfileParser.Abstraction.Options;
+
 
 namespace ProfileParser.Options;
 
-public class InstagramProfileParsingOptions:ProfileParsingOptions
+public class InstagramParsingOptions:ParsingOptions
 {
     public string CloseLogInModalButton { get; set; } = string.Empty;
 
@@ -33,5 +34,7 @@ public class InstagramProfileParsingOptions:ProfileParsingOptions
     public string SettingsWrapper { get; set; } = string.Empty;
     
     public string SettingsButton { get; set; } = string.Empty;
+
+    public string PrivateAccountBlock { get; set; } = string.Empty;
 
 }

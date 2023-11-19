@@ -1,38 +1,54 @@
 ﻿using OpenQA.Selenium.Chrome;
-using ProfileParser.Abstraction.Interfaces;
-using ProfileParser.Factories;
+using ProfileParser.Abstraction.Options;
+using ProfileParser.Interfaces;
+using ProfileParser.Interfaces.Factories;
+using ProfileParser.Interfaces.Parsers;
 
 namespace ProfileParser.Options;
 
 public class ApplicationOptions
 {
-    private readonly IProfileParserFactory _profileFactory;
+    private readonly IParserFactory _factory;
 
     private readonly IAuthorizationFactory _authFactory;
+
+    public IAuthorization Authorization { get; private set; }
+
+    public IParser Parser { get; private set; }
+
+    private readonly ChromeDriver _driver;
+
+    private readonly AuthorizationOptions _authorizationOptions;
+
+    private readonly ParsingOptions _parsingOptions;
     
-    public ApplicationOptions(IProfileParserFactory profileFactory,IAuthorizationFactory authFactory)
+    public ApplicationOptions(ChromeDriver driver,
+        AuthorizationOptions authorizationOptions,
+        ParsingOptions parsingOptions,
+        IParserFactory factory,
+        IAuthorizationFactory authFactory)
     {
-        _profileFactory = profileFactory;
+        _driver = driver;
+        _factory = factory;
         _authFactory = authFactory;
+        _parsingOptions = parsingOptions;
+        _authorizationOptions = authorizationOptions;
     }
-
-    private IAuthorization _authorization;
-
-    private IProfileParser _profileParser;
-
-    public ChromeDriver Driver { get; set; }
-
-    public AuthorizationOptions AuthorizationOptions { get; set; }
-
-    public ProfileParsingOptions ProfileParsingOptions { get; set; }
+    
 
     public void UseAuthorization<T>() where T:IAuthorization
     {
-        _authorization = _authFactory.CreateAuthorization<T>();
+        Authorization = _authFactory.CreateAuthorization<T>(_authorizationOptions,_driver);
     }
 
-    public void UseProfileParser<T>() where T:IProfileParser
+    public void UseParser<T>() where T:IParser
     {
-        _profileParser = _profileFactory.CreateProfileParser<T>();
+        Parser = _factory.CreateProfileParser<T>(_parsingOptions,_driver);
+    }
+
+    public void Close()
+    {
+        _driver.Close();
+        _driver.Quit();
     }
 }

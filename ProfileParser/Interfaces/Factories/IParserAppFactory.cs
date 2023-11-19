@@ -1,8 +1,7 @@
-﻿using OpenQA.Selenium.Chrome;
-using ProfileParser.Abstraction.Interfaces;
+﻿using ProfileParser.Interfaces.Parsers;
 using ProfileParser.Options;
 
-namespace ProfileParser.Factories;
+namespace ProfileParser.Interfaces.Factories;
 
 public interface IParserAppFactory
 {

@@ -1,4 +1,4 @@
-﻿using ProfileParser.Enums;
+﻿
 
 namespace ProfileParser.Options;
 
@@ -14,5 +14,4 @@ public  class AuthorizationOptions
     
     public string LogInSuccessElement { get; set; }= string.Empty; 
     
-    public AllowedLoginMethod LoginMethods { get; set; }
 }

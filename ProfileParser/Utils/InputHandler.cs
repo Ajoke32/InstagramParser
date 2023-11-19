@@ -4,26 +4,58 @@ namespace ProfileParser.Utils;
 
 public class InputHandler
 {
-    public string HandlePasswordInput()
+
+    
+    public static string HandlePasswordInput()
     {
-        Console.Clear();
         var password = new StringBuilder();
-        var stars = new StringBuilder();
+        var stars= new StringBuilder();
         ConsoleKeyInfo key;
         do
         {
             key = Console.ReadKey(true);
-            password.Append(key);
-
+            password.Append(key.KeyChar);
+            
+            if (key.Key == ConsoleKey.Backspace)
+            {
+                if (stars.Length > 0)
+                {
+                    stars.Remove(stars.Length - 1, 1);
+                    ClearCurrentConsoleLine();
+                    Console.Write(stars.ToString());
+                }
+                continue;
+            }
+            
+            if (key.Key == ConsoleKey.Enter&&string.IsNullOrEmpty(password.ToString()))
+            {
+                continue;
+            }
+            ClearCurrentConsoleLine();
             if (key.Key != ConsoleKey.Enter)
             {
                 stars.Append("*");
-                Console.Clear();
-                Console.Write(stars.ToString());
             }
 
-        } while (key.Key != ConsoleKey.Enter);
+            Console.Write(stars.ToString());
 
-        return password .ToString();
+        } while (key.Key != ConsoleKey.Enter);
+        
+        return password.ToString();
+    }
+    
+
+    public static string HandleLoginInput()
+    {
+        var res = Console.ReadLine();
+
+        return res??"error";
+    }
+    private static void ClearCurrentConsoleLine()
+    {
+        int currentLineCursor = Console.CursorTop;
+        Console.SetCursorPosition(0, Console.CursorTop);
+        Console.Write(new string(' ', Console.WindowWidth));
+        Console.SetCursorPosition(0, currentLineCursor);
     }
 }
