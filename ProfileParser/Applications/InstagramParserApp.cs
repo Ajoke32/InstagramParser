@@ -58,10 +58,10 @@ public class InstagramParserApp : ParserAppBase
 
                 switch (command)
                 {
-                    case "3":
+                    case "2":
                         await _parserTemplate.ParseAsync();
                         break;
-                    case "4":
+                    case "3":
                     {
                         Console.WriteLine("Make sure your screen is clear and you are authorized");
                         Console.Write("Link:");
@@ -94,11 +94,11 @@ public class InstagramParserApp : ParserAppBase
     private void Menu()
     {
         Console.WriteLine("----------Instagram Parser-------------");
-        Console.WriteLine("1.Log in, 2.Retry, q - exit");
+        Console.WriteLine("1.Log in, q - exit");
     }
 
     private void ParseMenu()
     {
-        Console.WriteLine("3.Pars my account, 4.Parse account by link");
+        Console.WriteLine("2.Pars my account, 3.Parse account by link");
     }
 }
