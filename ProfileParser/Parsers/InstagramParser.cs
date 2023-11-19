@@ -27,12 +27,15 @@ public class InstagramParser : IParser
         _driver = driver;
     }
     public void ParseFollowers()
-    {
+    {   
+        
         while (MoveNext())
         {
-            Console.WriteLine("Parsing...");
+            Console.WriteLine("Parsing followers");
             Console.Clear();
         }
+
+        Console.WriteLine("Followers parsed");
     }
     public void ParseAccounts()
     {
@@ -238,6 +241,7 @@ public class InstagramParser : IParser
 
     public void InitFollowersBLock()
     {
+        Console.WriteLine("Searching followers...");
         _driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
         var followersBlock = _driver.FindElement(By.CssSelector(_options.FollowersSection));
         var list = followersBlock.FindElements(By.CssSelector("li"));
