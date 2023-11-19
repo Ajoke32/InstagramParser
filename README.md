@@ -36,3 +36,6 @@ When you choose the parsing method you want, the application will start collecti
 I recommend keeping the browser window open in full screen
 
 After collecting information about subscribers, you will be able to save this data in JSON format
+
+## Additional info
+- iIf the console is empty, you need to wait a few seconds. If something goes wrong, an error will be generated and the application will terminate
