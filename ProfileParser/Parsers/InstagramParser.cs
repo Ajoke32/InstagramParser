@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System.Diagnostics;
+using Newtonsoft.Json;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Support.UI;
@@ -15,12 +16,12 @@ namespace ProfileParser.Parsers;
 public class InstagramParser : IParser
 {
     private readonly InstagramParsingOptions _options;
-    
+
     private readonly ChromeDriver _driver;
 
     private int _followersCount = 0;
-    
-    public  List<User> Users { get; } = new();
+
+    public List<User> Users { get; } = new();
 
     private readonly List<string> _profilesLinks = new();
 
@@ -29,36 +30,36 @@ public class InstagramParser : IParser
         _options = (InstagramParsingOptions)opt;
         _driver = driver;
     }
+
     public void ParseFollowers()
-    {   
-        
+    {
         while (MoveNext())
         {
             Console.WriteLine("Parsing followers");
             Console.Clear();
         }
-        
-        ObserverFactory.CreateObserver<DataObserver<List<string>>,List<string>>()
+
+        /*ObserverFactory.CreateObserver<DataObserver<List<string>>,List<string>>()
            .Execute(() =>_profilesLinks, (list) =>
            {
                var content = JsonSerializer.Serialize(list);
                File.WriteAllText("Links.json",content);
-           });
-        
+           });*/
+
         Console.WriteLine("Followers parsed");
     }
+
     public void ParseAccounts()
     {
-     
         var waitPageLoad = new WebDriverWait(_driver, TimeSpan.FromSeconds(15));
-        for (int j=0;j<_profilesLinks.Count;j++)
+        for (int j = 0; j < _profilesLinks.Count; j++)
         {
             Console.Clear();
-            Console.Write($"Accounts parsing {j+1} of {_profilesLinks.Count}");
+            Console.Write($"Accounts parsing {j + 1} of {_profilesLinks.Count}\n");
             _driver.Navigate().GoToUrl(_profilesLinks[j]);
-           
+
             var user = new User();
-          
+
             var infoSection = waitPageLoad.Until(d =>
             {
                 try
@@ -79,9 +80,9 @@ public class InstagramParser : IParser
                     user.IsPrivate = true;
                 }
             }
-            catch (NoSuchElementException e) { }
-
-
+            catch (NoSuchElementException e)
+            {
+            }
 
             if (infoSection != null)
             {
@@ -94,7 +95,8 @@ public class InstagramParser : IParser
                 {
                 }
             }
-          
+
+
             var overallInfo = _driver.FindElement(By.CssSelector(_options.OverallInfo));
 
             var overallItems = overallInfo.FindElements(By.TagName("li"));
@@ -111,22 +113,25 @@ public class InstagramParser : IParser
                     field.SetValue(user, arr[0]);
                 }
             }
-           
-            user.SecondName = TryGetString(_options.UserInfoSection, _options.SecondNameBlock);
-            user.AccountAbout = TryGetString(_options.UserInfoSection, _options.AccountAbout);
-            user.Bio = TryGetString(_options.UserInfoSection, _options.BioBlock);
-            user.Site = TryGetString(_options.UserInfoSection, _options.WebSite);
 
-            
+
+            var userInfoSection = _driver.FindElement(By.CssSelector(_options.UserInfoSection));
+            user.SecondName = TryGetString(ref userInfoSection,_options.UserInfoSection);
+            user.AccountAbout = TryGetString(ref userInfoSection, _options.UserInfoSection);
+            user.Bio = TryGetString(ref userInfoSection, _options.UserInfoSection);
+            user.Site = TryGetString(ref userInfoSection, _options.UserInfoSection);
+
+
             var links = _driver
                 .FindElement(By.CssSelector(_options.UserInfoSection))
                 .FindElements(By.TagName("a"));
-        
+
+
             foreach (var accountLink in links)
             {
                 user.Links.Add(new Link(accountLink.Text, accountLink.GetAttribute("href")));
             }
-            
+
             Users.Add(user);
         }
     }
@@ -138,16 +143,17 @@ public class InstagramParser : IParser
         ParseFollowers();
         ParseAccounts();
     }
-    private string TryGetString(string element, string selector)
+
+    private string TryGetString(ref IWebElement parentElement,string selector)
     {
-        string value;
-        try
+
+        string value = "";
+
+        var elements = parentElement.FindElements(By.CssSelector(selector));
+
+        if (elements.Count > 0)
         {
-            value = _driver.FindElement(By.CssSelector(element)).FindElement(By.CssSelector(selector)).Text;
-        }
-        catch (NoSuchElementException e)
-        {
-            value = "";
+            value = elements[0].Text;
         }
 
         return value;
@@ -263,8 +269,10 @@ public class InstagramParser : IParser
                 throw new PrivateAccountException("Account is private, cannot parse data");
             }
         }
-        catch (NoSuchElementException e) { }
-        
+        catch (NoSuchElementException e)
+        {
+        }
+
         var followBlock = list[1];
         followBlock.Click();
         var followBLockWait = new WebDriverWait(_driver, TimeSpan.FromSeconds(15));
@@ -287,12 +295,12 @@ public class InstagramParser : IParser
         _driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(5);
 
         var followers =
-            _driver.FindElements(By.CssSelector($"{_options.FollowerBlock}:nth-child(n+{_followersCount+1})"));
+            _driver.FindElements(By.CssSelector($"{_options.FollowerBlock}:nth-child(n+{_followersCount + 1})"));
         if (!followers.Any())
         {
             _driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(5);
             followers = _driver.FindElements(
-                By.CssSelector($"{_options.FollowerBlock}:nth-child(n+{_followersCount+1})"));
+                By.CssSelector($"{_options.FollowerBlock}:nth-child(n+{_followersCount + 1})"));
             if (!followers.Any())
             {
                 return false;
