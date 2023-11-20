@@ -1,11 +1,14 @@
-﻿using OpenQA.Selenium;
+﻿using Newtonsoft.Json;
+using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Support.UI;
 using ProfileParser.Abstraction.Options;
 using ProfileParser.Entities;
 using ProfileParser.Exceptions;
 using ProfileParser.Interfaces.Parsers;
+using ProfileParser.Observers;
 using ProfileParser.Options;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace ProfileParser.Parsers;
 
@@ -34,7 +37,14 @@ public class InstagramParser : IParser
             Console.WriteLine("Parsing followers");
             Console.Clear();
         }
-
+        
+        ObserverFactory.CreateObserver<DataObserver<List<string>>,List<string>>()
+           .Execute(() =>_profilesLinks, (list) =>
+           {
+               var content = JsonSerializer.Serialize(list);
+               File.WriteAllText("Links.json",content);
+           });
+        
         Console.WriteLine("Followers parsed");
     }
     public void ParseAccounts()
@@ -44,7 +54,7 @@ public class InstagramParser : IParser
         for (int j=0;j<_profilesLinks.Count;j++)
         {
             Console.Clear();
-            Console.Write($"Accounts parsing {j} of {_profilesLinks.Count}");
+            Console.Write($"Accounts parsing {j+1} of {_profilesLinks.Count}");
             _driver.Navigate().GoToUrl(_profilesLinks[j]);
            
             var user = new User();
@@ -70,7 +80,7 @@ public class InstagramParser : IParser
                 }
             }
             catch (NoSuchElementException e) { }
-            Console.WriteLine("Private end");
+
 
 
             if (infoSection != null)
@@ -277,12 +287,12 @@ public class InstagramParser : IParser
         _driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(5);
 
         var followers =
-            _driver.FindElements(By.CssSelector($"{_options.FollowerBlock}:nth-child(n+{_followersCount})"));
+            _driver.FindElements(By.CssSelector($"{_options.FollowerBlock}:nth-child(n+{_followersCount+1})"));
         if (!followers.Any())
         {
             _driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(5);
             followers = _driver.FindElements(
-                By.CssSelector($"{_options.FollowerBlock}:nth-child(n+{_followersCount})"));
+                By.CssSelector($"{_options.FollowerBlock}:nth-child(n+{_followersCount+1})"));
             if (!followers.Any())
             {
                 return false;
@@ -297,7 +307,7 @@ public class InstagramParser : IParser
             _profilesLinks.Add(href);
         }
 
-        _followersCount += followers.Count + 1;
+        _followersCount += followers.Count;
 
         return true;
     }

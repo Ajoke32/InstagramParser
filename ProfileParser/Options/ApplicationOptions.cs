@@ -3,6 +3,7 @@ using ProfileParser.Abstraction.Options;
 using ProfileParser.Interfaces;
 using ProfileParser.Interfaces.Factories;
 using ProfileParser.Interfaces.Parsers;
+using ProfileParser.Parsers;
 
 namespace ProfileParser.Options;
 
@@ -43,7 +44,7 @@ public class ApplicationOptions
 
     public void UseParser<T>() where T:IParser
     {
-        Parser = _factory.CreateProfileParser<T>(_parsingOptions,_driver);
+       Parser = _factory.CreateProfileParser<T>(_parsingOptions,_driver);
     }
 
     public void Close()

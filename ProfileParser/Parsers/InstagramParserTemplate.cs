@@ -32,6 +32,7 @@ public class InstagramParserTemplate:IParserTemplate
             catch (Exception e)
             {
                 Console.WriteLine("Something went wrong...");
+                throw new Exception("Data parsing fail");
             }
         });
     }
