@@ -38,12 +38,6 @@ public class InstagramParser : IParser
             Console.Clear();
         }
         
-        ObserverFactory.CreateObserver<DataObserver<List<string>>,List<string>>()
-           .Execute(() =>_profilesLinks, (list) =>
-           {
-               var content = JsonSerializer.Serialize(list);
-               File.WriteAllText("Links.json",content);
-           });
         
         Console.WriteLine("Followers parsed");
     }
